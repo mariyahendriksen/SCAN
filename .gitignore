@@ -8,3 +8,6 @@
 /pycocotools
 /runs
 /vocab
+
+# pycharm-related
+/idea
