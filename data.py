@@ -48,14 +48,16 @@ class PrecompDataset(data.Dataset):
 
     def __getitem__(self, index):
         # handle the image redundancy
-        img_id = index/self.im_div
+        img_id = int(index/self.im_div)
+        # print(f'index - {index}, self.im_div - {self.im_div}, img_id - {img_id}')
         image = torch.Tensor(self.images[img_id])
         caption = self.captions[index]
         vocab = self.vocab
 
         # Convert caption (string) to word ids.
         tokens = nltk.tokenize.word_tokenize(
-            str(caption).lower().decode('utf-8'))
+            # str(caption).lower().decode('utf-8'))
+            caption.lower().decode('utf-8'))
         caption = []
         caption.append(vocab('<start>'))
         caption.extend([vocab(token) for token in tokens])

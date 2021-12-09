@@ -16,7 +16,7 @@ from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from torch.nn.utils.weight_norm import weight_norm
 import torch.backends.cudnn as cudnn
-from torch.nn.utils.clip_grad import clip_grad_norm
+from torch.nn.utils.clip_grad import clip_grad_norm_
 import numpy as np
 from collections import OrderedDict
 
@@ -217,7 +217,7 @@ def func_attention(query, context, opt, smooth, eps=1e-8):
     attn = torch.transpose(attn, 1, 2).contiguous()
     # --> (batch*queryL, sourceL)
     attn = attn.view(batch_size*queryL, sourceL)
-    attn = nn.Softmax()(attn*smooth)
+    attn = nn.Softmax(dim=0)(attn*smooth)
     # --> (batch, queryL, sourceL)
     attn = attn.view(batch_size, queryL, sourceL)
     # --> (batch, sourceL, queryL)
@@ -449,7 +449,8 @@ class SCAN(object):
         """Compute the loss given pairs of image and caption embeddings
         """
         loss = self.criterion(img_emb, cap_emb, cap_len)
-        self.logger.update('Le', loss.data[0], img_emb.size(0))
+        # self.logger.update('Le', loss.data[0], img_emb.size(0))
+        self.logger.update('Le', loss.item(), img_emb.size(0))
         return loss
 
     def train_emb(self, images, captions, lengths, ids=None, *args):
@@ -469,5 +470,5 @@ class SCAN(object):
         # compute gradient and do SGD step
         loss.backward()
         if self.grad_clip > 0:
-            clip_grad_norm(self.params, self.grad_clip)
+            clip_grad_norm_(self.params, self.grad_clip)
         self.optimizer.step()

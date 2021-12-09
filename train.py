@@ -32,7 +32,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', default='./data/',
                         help='path to datasets')
-    parser.add_argument('--data_name', default='precomp',
+    parser.add_argument('--data_name', default='coco_precomp',
                         help='{coco,f30k}_precomp')
     parser.add_argument('--vocab_path', default='./vocab/',
                         help='Path to saved vocabulary json files.')
@@ -60,13 +60,13 @@ def main():
                         help='Number of steps to print and record the log.')
     parser.add_argument('--val_step', default=500, type=int,
                         help='Number of steps to run validation.')
-    parser.add_argument('--logger_name', default='./runs/runX/log',
+    parser.add_argument('--logger_name', default='./runs/coco_scan/log',
                         help='Path to save Tensorboard log.')
-    parser.add_argument('--model_name', default='./runs/runX/checkpoint',
+    parser.add_argument('--model_name', default='./runs/coco_scan/log',
                         help='Path to save the model.')
     parser.add_argument('--resume', default='', type=str, metavar='PATH',
                         help='path to latest checkpoint (default: none)')
-    parser.add_argument('--max_violation', action='store_true',
+    parser.add_argument('--max_violation', action='store_true', default='bi_gru',
                         help='Use max instead of sum in the rank loss.')
     parser.add_argument('--img_dim', default=2048, type=int,
                         help='Dimensionality of the image embedding.')
