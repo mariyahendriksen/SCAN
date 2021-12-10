@@ -6,8 +6,8 @@ This is Stacked Cross Attention Network, source code of [Stacked Cross Attention
 ## Requirements and Installation
 We recommended the following dependencies.
 
-* Python 2.7
-* [PyTorch](http://pytorch.org/) 0.3
+* Python 3.6
+* [PyTorch](http://pytorch.org/) 1.7
 * [NumPy](http://www.numpy.org/) (>1.12.1)
 * [TensorBoard](https://github.com/TeamHG-Memex/tensorboard_logger)
 
