@@ -258,8 +258,8 @@ def shard_xattn_t2i(images, captions, caplens, opt, shard_size=128):
     """
     Computer pairwise t2i image-caption distance with locality sharding
     """
-    n_im_shard = (len(images)-1)/shard_size + 1
-    n_cap_shard = (len(captions)-1)/shard_size + 1
+    n_im_shard = int((len(images)-1)/shard_size + 1)
+    n_cap_shard = int((len(captions)-1)/shard_size + 1)
     
     d = np.zeros((len(images), len(captions)))
     for i in range(n_im_shard):
