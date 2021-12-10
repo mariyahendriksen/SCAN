@@ -30,9 +30,10 @@ import argparse
 def main():
     # Hyper Parameters
     parser = argparse.ArgumentParser()
+    dataset = 'f30k' # 'f30k' or 'coco'
     parser.add_argument('--data_path', default='./data/',
                         help='path to datasets')
-    parser.add_argument('--data_name', default='coco_precomp',
+    parser.add_argument('--data_name', default=f'{dataset}_precomp',
                         help='{coco,f30k}_precomp')
     parser.add_argument('--vocab_path', default='./vocab/',
                         help='Path to saved vocabulary json files.')
@@ -60,9 +61,9 @@ def main():
                         help='Number of steps to print and record the log.')
     parser.add_argument('--val_step', default=500, type=int,
                         help='Number of steps to run validation.')
-    parser.add_argument('--logger_name', default='./runs/coco_scan/log',
+    parser.add_argument('--logger_name', default=f'./runs/{dataset}_scan/log',
                         help='Path to save Tensorboard log.')
-    parser.add_argument('--model_name', default='./runs/coco_scan/log',
+    parser.add_argument('--model_name', default=f'./runs/{dataset}_scan/log',
                         help='Path to save the model.')
     parser.add_argument('--resume', default='', type=str, metavar='PATH',
                         help='path to latest checkpoint (default: none)')

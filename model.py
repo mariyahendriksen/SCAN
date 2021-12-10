@@ -432,8 +432,9 @@ class SCAN(object):
         """Compute the image and caption embeddings
         """
         # Set mini-batch dataset
-        images = Variable(images, volatile=volatile)
-        captions = Variable(captions, volatile=volatile)
+        with torch.no_grad():
+            images = images
+            captions = captions
         if torch.cuda.is_available():
             images = images.cuda()
             captions = captions.cuda()
