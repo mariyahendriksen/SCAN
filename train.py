@@ -26,11 +26,13 @@ import tensorboard_logger as tb_logger
 
 import argparse
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def main():
     # Hyper Parameters
     parser = argparse.ArgumentParser()
-    dataset = 'f30k' # 'f30k' or 'coco'
+    dataset = 'deep_fashion' # deep_fashion, 'f30k' or 'coco'
+    exp_type = 'mlf' # scan or mls
     parser.add_argument('--data_path', default='./data/',
                         help='path to datasets')
     parser.add_argument('--data_name', default=f'{dataset}_precomp',
@@ -61,11 +63,14 @@ def main():
                         help='Number of steps to print and record the log.')
     parser.add_argument('--val_step', default=500, type=int,
                         help='Number of steps to run validation.')
-    parser.add_argument('--logger_name', default=f'./runs/{dataset}_scan/log',
+    parser.add_argument('--logger_name', default=f'./runs/{dataset}_{exp_type}/log',
                         help='Path to save Tensorboard log.')
-    parser.add_argument('--model_name', default=f'./runs/{dataset}_scan/log',
+    parser.add_argument('--model_name', default=f'./runs/{dataset}_{exp_type}/log',
                         help='Path to save the model.')
-    parser.add_argument('--resume', default='', type=str, metavar='PATH',
+    parser.add_argument('--resume'
+                        , default=''
+                        # , default='/Users/mhendriksen/Desktop/repositories/SCAN/runs/f30k_scan/checkpoint_9.pth.tar'
+                        ,type=str, metavar='PATH',
                         help='path to latest checkpoint (default: none)')
     parser.add_argument('--max_violation', action='store_true', default='bi_gru',
                         help='Use max instead of sum in the rank loss.')
@@ -100,6 +105,7 @@ def main():
     opt.vocab_size = len(vocab)
 
     # Load data loaders
+    # Load data loaders
     train_loader, val_loader = data.get_loaders(
         opt.data_name, vocab, opt.batch_size, opt.workers, opt)
 
@@ -112,7 +118,7 @@ def main():
     if opt.resume:
         if os.path.isfile(opt.resume):
             print("=> loading checkpoint '{}'".format(opt.resume))
-            checkpoint = torch.load(opt.resume)
+            checkpoint = torch.load(opt.resume, map_location=device)
             start_epoch = checkpoint['epoch'] + 1
             best_rsum = checkpoint['best_rsum']
             model.load_state_dict(checkpoint['model'])

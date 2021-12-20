@@ -29,10 +29,12 @@ class PrecompDataset(data.Dataset):
         loc = data_path + '/'
 
         # Captions
+        # load captions into a list
         self.captions = []
         with open(loc+'%s_caps.txt' % data_split, 'rb') as f:
             for line in f:
                 self.captions.append(line.strip())
+
 
         # Image features
         self.images = np.load(loc+'%s_ims.npy' % data_split)
@@ -42,9 +44,10 @@ class PrecompDataset(data.Dataset):
             self.im_div = 5
         else:
             self.im_div = 1
-        # the development set for coco is large and so validation would be slow
+        # if the dev set is larger than 5000
+        # limit the dev set size
         if data_split == 'dev':
-            self.length = 5000
+            self.length = min(5000, len(self.captions))
 
     def __getitem__(self, index):
         # handle the image redundancy
@@ -63,6 +66,7 @@ class PrecompDataset(data.Dataset):
         caption.extend([vocab(token) for token in tokens])
         caption.append(vocab('<end>'))
         target = torch.Tensor(caption)
+
         return image, target, index, img_id
 
     def __len__(self):
@@ -70,16 +74,19 @@ class PrecompDataset(data.Dataset):
 
 
 def collate_fn(data):
-    """Build mini-batch tensors from a list of (image, caption) tuples.
+    """Build mini-batch tensors from a list of (image, caption, index, img_id) tuples.
     Args:
-        data: list of (image, caption) tuple.
+        data: list of (image, caption, index, img_id) tuple.
             - image: torch tensor of shape (3, 256, 256).
             - caption: torch tensor of shape (?); variable length.
+            - index: index in the dataset
+            - img_id: id of the image
 
     Returns:
         images: torch tensor of shape (batch_size, 3, 256, 256).
         targets: torch tensor of shape (batch_size, padded_length).
         lengths: list; valid length for each padded caption.
+        ids: inde in the dataset
     """
     # Sort a data list by caption length
     data.sort(key=lambda x: len(x[1]), reverse=True)
@@ -88,7 +95,7 @@ def collate_fn(data):
     # Merge images (convert tuple of 3D tensor to 4D tensor)
     images = torch.stack(images, 0)
 
-    # Merget captions (convert tuple of 1D tensor to 2D tensor)
+    # Merge captions (convert tuple of 1D tensor to 2D tensor)
     lengths = [len(cap) for cap in captions]
     targets = torch.zeros(len(captions), max(lengths)).long()
     for i, cap in enumerate(captions):
@@ -112,6 +119,14 @@ def get_precomp_loader(data_path, data_split, vocab, opt, batch_size=100,
 
 
 def get_loaders(data_name, vocab, batch_size, workers, opt):
+    """
+    Returns train and val loaders
+
+    Arguments:
+    data_name: {coco,f30k}_precomp
+    vocab: vocabulary file
+    batch_size: batch size
+    """
     dpath = os.path.join(opt.data_path, data_name)
     train_loader = get_precomp_loader(dpath, 'train', vocab, opt,
                                       batch_size, True, workers)

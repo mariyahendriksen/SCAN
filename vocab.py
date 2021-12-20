@@ -106,7 +106,6 @@ def main(data_path, data_name):
     print("Saved vocabulary file to ", './vocab/%s_vocab.json' % data_name)
 
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', default='data')

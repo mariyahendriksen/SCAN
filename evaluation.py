@@ -20,7 +20,8 @@ import torch
 from model import SCAN, xattn_score_t2i, xattn_score_i2t
 from collections import OrderedDict
 import time
-from torch.autograd import Variable
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
@@ -115,8 +116,8 @@ def encode_data(model, data_loader, log_step=10, logging=print):
             cap_embs = np.zeros((len(data_loader.dataset), max_n_word, cap_emb.size(2)))
             cap_lens = [0] * len(data_loader.dataset)
         # cache embeddings
-        img_embs[ids] = img_emb.data.cpu().numpy().copy()
-        cap_embs[ids,:max(lengths),:] = cap_emb.data.cpu().numpy().copy()
+        img_embs[ids, :, :] = img_emb.data.cpu().numpy().copy()
+        cap_embs[ids, : max(lengths),:] = cap_emb.data.cpu().numpy().copy()
         for j, nid in enumerate(ids):
             cap_lens[nid] = cap_len[j]
 
@@ -267,8 +268,9 @@ def shard_xattn_t2i(images, captions, caplens, opt, shard_size=128):
         for j in range(n_cap_shard):
             sys.stdout.write('\r>> shard_xattn_t2i batch (%d,%d)' % (i,j))
             cap_start, cap_end = shard_size*j, min(shard_size*(j+1), len(captions))
-            im = Variable(torch.from_numpy(images[im_start:im_end]), volatile=True).cuda()
-            s = Variable(torch.from_numpy(captions[cap_start:cap_end]), volatile=True).cuda()
+            with torch.no_grad():
+                im = torch.from_numpy(images[im_start:im_end]).to(device)
+                s = torch.from_numpy(captions[cap_start:cap_end]).to(device)
             l = caplens[cap_start:cap_end]
             sim = xattn_score_t2i(im, s, l, opt)
             d[im_start:im_end, cap_start:cap_end] = sim.data.cpu().numpy()
