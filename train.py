@@ -31,17 +31,17 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def main():
     # Hyper Parameters
     parser = argparse.ArgumentParser()
-    dataset = 'deep_fashion' # deep_fashion, 'f30k' or 'coco'
-    exp_type = 'mlf' # scan or mls
-    parser.add_argument('--data_path', default='./data/',
+    dataset = 'f30k' # deep_fashion, 'f30k' or 'coco'
+    exp_type = 'scan' # scan or mls
+    parser.add_argument('--data_path', default='/ivi/ilps/personal/mbiriuk/data/data',
                         help='path to datasets')
-    parser.add_argument('--data_name', default=f'{dataset}_precomp',
+    parser.add_argument('--data_name', default=f'{dataset}_{exp_type}_precomp',
                         help='{coco,f30k}_precomp')
     parser.add_argument('--vocab_path', default='./vocab/',
                         help='Path to saved vocabulary json files.')
     parser.add_argument('--margin', default=0.2, type=float,
                         help='Rank loss margin.')
-    parser.add_argument('--num_epochs', default=30, type=int,
+    parser.add_argument('--num_epochs', default=15, type=int,
                         help='Number of training epochs.')
     parser.add_argument('--batch_size', default=128, type=int,
                         help='Size of a training mini-batch.')

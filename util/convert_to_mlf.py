@@ -40,6 +40,7 @@ def get_image_features(model, root, file_paths):
 
 
 def main(args):
+    dataset_type = args.dataset_type
     root_raw = args.root_raw
     df_file = args.df_file
     split = args.split
@@ -49,48 +50,79 @@ def main(args):
     # 1. loads:
     # layers model
     net = Layers_resnest(img_dim=2048, trained_dresses=False, checkpoint_path=None)
+    net.to(device)
     net.eval()
     logging.info('Loaded layers resnest')
     # df
-    df = pd.read_csv(
-        df_file,
-        dtype={
-            'image_name': str,
-            'eval_status': str,
-            'product_type': str
-        },
-        index_col=0
-    )
+    if dataset_type == 'deep_fashion':
+        df = pd.read_csv(
+            df_file,
+            dtype={
+                'image_name': str,
+                'eval_status': str,
+                'product_type': str
+            },
+            index_col=0
+        )
+    elif dataset_type == 'f30k':
+        df = pd.read_csv(
+            df_file,
+            dtype={
+                'image_name': str,
+                'eval_status': str,
+                'image_caption': str
+            },
+            index_col=0
+        )
+    else:
+        raise NotImplementedError
     logging.info('Loaded df')
     df_subset = df[df['eval_status'] == split]
     file_paths = df_subset['image_name'].tolist()
-    logging.info(f'Got image_names for {split}')
+    logging.info(f'Got image_names from {dataset_type} split: {split}')
 
     # 2. embed images
     features = get_image_features(net, root_raw, file_paths)
     logging.info('Completed image transformations, final images shape: ', features.shape)
 
     # 3. save image representations
-    target_file = os.path.join(root_precomp, f'mlf_{split}_ims.npy')
-    with open(target_file, 'wb') as f:
+    os.makedirs(root_precomp, exist_ok=True)
+    target_file = os.path.join(root_precomp, f'{split}_ims.npy')
+    with open(target_file, 'wb+') as f:
         np.save(f, features)
     logging.info(f"Saved image file to {target_file}")
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--dataset_type',
+                        default='f30k',
+                        choices=['f30k', 'deep_fashion'],
+                        help='f30k or deep fashion dataset')
     parser.add_argument('--root_raw',
-                        default='/Users/mhendriksen/Desktop/repositories/SCAN/data/deep_fashion/category-and-attribute-prediction',
+                        default='/ivi/ilps/personal/mbiriuk/data/data/flickr30k_images/flickr30k_images',
+                        choices=[
+                            '/ivi/ilps/personal/mbiriuk/data/data/deep_fashion/category-and-attribute-prediction',
+                            '/ivi/ilps/personal/mbiriuk/data/data/flickr30k_images/flickr30k_images',
+                            '/Users/mhendriksen/Desktop/repositories/SCAN/flickr30k_images/flickr30k_images/flickr30k_images'
+                        ],
                         help='path to image folder')
     parser.add_argument('--df_file',
-                        default='/Users/mhendriksen/Desktop/repositories/SCAN/data/deep_fashion/category-and-attribute-prediction/eval_partition.csv',
+                        default='/ivi/ilps/personal/mbiriuk/data/data/flickr30k_images/dataset_flickr30k.csv',
+                        choices=[
+                            '/ivi/ilps/personal/mbiriuk/data/data/deep_fashion/category-and-attribute-prediction/eval_partition.csv',
+                            '/ivi/ilps/personal/mbiriuk/data/data/flickr30k_images/dataset_flickr30k.csv'
+                        ],
                         help='df file path')
     parser.add_argument('--split',
                         default='train',
                         choices=['train', 'val', 'test'],
                         help='split type')
     parser.add_argument('--root_precomp',
-                        default='/Users/mhendriksen/Desktop/repositories/SCAN/data/deep_fashion_precomp',
+                        default='/ivi/ilps/personal/mbiriuk/data/data/f30k_mlf_precomp',
+                        choices=[
+                            '/ivi/ilps/personal/mbiriuk/data/data/f30k_mlf_precomp'
+                        ],
                         help='path to folder where to save precomputed embeds')
     args = parser.parse_args()
     main(args)

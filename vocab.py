@@ -17,6 +17,7 @@ import json
 annotations = {
     'coco_precomp': ['train_caps.txt', 'dev_caps.txt'],
     'f30k_precomp': ['train_caps.txt', 'dev_caps.txt'],
+    'deep_fashion_precomp': ['train_caps.txt', 'dev_caps.txt']
 }
 
 
@@ -78,7 +79,8 @@ def build_vocab(data_path, data_name, caption_file, threshold):
         captions = from_txt(full_path)
         for i, caption in enumerate(captions):
             tokens = nltk.tokenize.word_tokenize(
-                caption.lower().decode('utf-8'))
+                caption.lower().decode('utf-8')
+            )
             counter.update(tokens)
 
             if i % 1000 == 0:
@@ -100,16 +102,18 @@ def build_vocab(data_path, data_name, caption_file, threshold):
     return vocab
 
 
-def main(data_path, data_name):
-    vocab = build_vocab(data_path, data_name, caption_file=annotations, threshold=4)
+def main(data_path, data_name, threshold):
+    vocab = build_vocab(data_path, data_name, caption_file=annotations, threshold=threshold)
     serialize_vocab(vocab, './vocab/%s_vocab.json' % data_name)
     print("Saved vocabulary file to ", './vocab/%s_vocab.json' % data_name)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', default='data')
-    parser.add_argument('--data_name', default='f30k_precomp',
-                        help='{coco,f30k}_precomp')
+    parser.add_argument('--data_path', default='/ivi/ilps/personal/mbiriuk/data/data')
+    parser.add_argument('--data_name', default='deep_fashion_precomp',
+                        help='{coco,f30k, deep_fashion}_precomp')
+    parser.add_argument('--threshold', default=1,
+                        help='Discard words with the frequency below the threshold')
     opt = parser.parse_args()
-    main(opt.data_path, opt.data_name)
+    main(opt.data_path, opt.data_name, opt.threshold)
