@@ -95,7 +95,7 @@ def main():
     parser.add_argument('--lambda_softmax', default=9., type=float,
                         help='Attention softmax temperature.')
     opt = parser.parse_args()
-    print(opt)
+    logging.info(opt)
 
     logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
     tb_logger.configure(opt.logger_name, flush_secs=5)
