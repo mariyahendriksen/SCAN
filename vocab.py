@@ -17,7 +17,8 @@ import json
 annotations = {
     'coco_precomp': ['train_caps.txt', 'dev_caps.txt'],
     'f30k_precomp': ['train_caps.txt', 'dev_caps.txt'],
-    'deep_fashion_precomp': ['train_caps.txt', 'dev_caps.txt']
+    'deep_fashion_precomp': ['train_caps.txt', 'dev_caps.txt'],
+    'cub_mlf_precomp': ['train_caps.txt', 'test_caps.txt']
 }
 
 
@@ -110,9 +111,9 @@ def main(data_path, data_name, threshold):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', default='/ivi/ilps/personal/mbiriuk/data/data')
-    parser.add_argument('--data_name', default='deep_fashion_precomp',
-                        help='{coco,f30k, deep_fashion}_precomp')
+    parser.add_argument('--data_path', default='/ivi/ilps/personal/mbiriuk/repro/data')
+    parser.add_argument('--data_name', default='cub_mlf_precomp',
+                        help='{coco, f30k, deep_fashion, cub_mlf}_precomp')
     parser.add_argument('--threshold', default=1,
                         help='Discard words with the frequency below the threshold')
     opt = parser.parse_args()

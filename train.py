@@ -28,15 +28,16 @@ import argparse
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+
 def main():
     # Hyper Parameters
     parser = argparse.ArgumentParser()
-    dataset = 'f30k' # deep_fashion, 'f30k' or 'coco'
-    exp_type = 'scan' # scan or mls
-    parser.add_argument('--data_path', default='/ivi/ilps/personal/mbiriuk/data/data',
+    dataset = 'cub'  # deep_fashion, cub 'f30k' or 'coco'
+    exp_type = 'mlf'  # scan or mlf
+    parser.add_argument('--data_path', default='/ivi/ilps/personal/mbiriuk/repro/data',
                         help='path to datasets')
     parser.add_argument('--data_name', default=f'{dataset}_{exp_type}_precomp',
-                        help='{coco,f30k}_precomp')
+                        help='{coco,f30k, cub}_precomp')
     parser.add_argument('--vocab_path', default='./vocab/',
                         help='Path to saved vocabulary json files.')
     parser.add_argument('--margin', default=0.2, type=float,
@@ -70,7 +71,7 @@ def main():
     parser.add_argument('--resume'
                         , default=''
                         # , default='/Users/mhendriksen/Desktop/repositories/SCAN/runs/f30k_scan/checkpoint_9.pth.tar'
-                        ,type=str, metavar='PATH',
+                        , type=str, metavar='PATH',
                         help='path to latest checkpoint (default: none)')
     parser.add_argument('--max_violation', action='store_true', default='bi_gru',
                         help='Use max instead of sum in the rank loss.')
@@ -189,7 +190,7 @@ def train(opt, train_loader, model, epoch, val_loader):
                 '{e_log}\t'
                 'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                 'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-                .format(
+                    .format(
                     epoch, i, len(train_loader), batch_time=batch_time,
                     data_time=data_time, e_log=str(model.logger)))
 
@@ -220,7 +221,7 @@ def validate(opt, val_loader, model):
     else:
         raise NotImplementedError
     end = time.time()
-    print("calculate similarity time:", end-start)
+    print("calculate similarity time:", end - start)
 
     # caption retrieval
     (r1, r5, r10, medr, meanr) = i2t(img_embs, cap_embs, cap_lens, sims)
